@@ -1,0 +1,26 @@
+# Ignore macOS system files
+.DS_Store
+.Trash/
+
+# Ignore Python, Anaconda, and Jupyter-related folders
+.anaconda/
+.conda/
+.ipython/
+.jupyter/
+.ipynb_checkpoints/
+.vscode/
+
+# Ignore system folders like Downloads, Documents, etc.
+/Documents/
+/Downloads/
+/Desktop/
+/Pictures/
+/Movies/
+/Music/
+/Library/
+
+# Ignore other config or profile files
+.bash_profile
+.zshrc
+.gitconfig
+
