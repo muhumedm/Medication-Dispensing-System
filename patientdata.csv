@@ -1,0 +1,12 @@
+﻿Patient ID,Name,Date of Birth,Gender,Medication Name,Health Condition,Dosage Time,Colour,Status,Phone Number,Email,Type of Carer,Preferred Contact Method,Notification Sent,Medication Start Date,Medication End Date,Course Type
+A001,Abir Mohamed,03/11/1958,Female,Amlodipine Besylate,Coronary artery disease,"08:00, 20:00",Red,"Missed, On Time",7989950266,abirmohamed@outlook.co,NHS,Email,Yes,16/01/2023,Indefinite,Chronic
+A001,Abir Mohamed,03/11/1958,Female,Azithromycin ,Respiratory infections,14:00,Green,On Time,7989950266,liliarowe@outlook.co,NHS,Email,No,14/02/2024,14/03/2024,Non-Chronic
+B002,John Smith,08/12/1950,Male,Levothyroxine,Hypothyroidism,"09:00, 21:00",Blue,"Missed, Missed",7754256674,johnsmith@outlook.co,Family,SMS,Yes,17/03/2020,Indefinite,Chronic
+C003,Annabel Key,08/03/1950,Female,Lisinopril,Heart failure,07:30,Yellow,Missed,7729560250,annabelkey@outlook.co,Family,SMS,Yes,18/04/2015,Indefinite,Chronic
+D004,Tess Dunn,24/04/1948,Female,Metformin,PCOS,13:00,Violet,On Time,7074746090,tessdunn@outlook.co,Self-care,Email,No,22/05/2019,Indefinite,Chronic
+E005,Lilia Rowe,25/07/1940,Female,Hydrocodone,Chronic pain management,"11:00, 22:00",Orange,"On Time, Missed",7909211587,liliarowe@outlook.co,NHS,SMS,Yes,18/06/2021,03/07/2025,Non-Chronic
+F006,Aaryan Mcclain,15/06/1952,Male,Omeprazole,Stomach ulcers,"10:00, 16:00",Indigo,"On Time, On Time",7963816998,aaryanmcclain@outlook.co,Family,Email,No,12/12/2024,12/05/2025,Non-Chronic
+G007,Khadija Ahmed,01/05/1943,Female,Simvastatin,Cardiovascular disease prevention,15:00,White,Missed,7844106799,khadijaahmed@outlook.co,Self-care,Email,Yes,18/08/2018,Indefinite,Chronic
+H008,Zubair Horne,02/12/1958,Male,Levothyroxine,Thyroid cancer,18:00,Purple,On Time,7077057848,zubairhorne@outlook.co,NHS,SMS,No,03/09/2016,Indefinite,Chronic
+H008,Zubair Horne,02/12/1958,Male,Lisinopril,High blood pressure,"08:00, 16:00",Pink,"On Time, On Time",7077057848,zubairhorne@outlook.co,NHS,SMS,No,18/10/2016,Indefinite,Chronic
+I009,Muna Muhumed,12/03/1960,Female,Metformin,Type 2 Diabetes,19:15,Brown,Missed,7729569783,munaMuhumed410@outlook.com,Self-care,Email,Yes,18/11/2017,Indefinite,Chronic
