@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% load tz %}
+
+{% block content %}
+  <h2>Upcoming Doses</h2>
+
+  <!-- Filter + View All Form Row -->
+  <form method="get" class="row gx-2 gy-2 align-items-center mb-3">
+
+    <!-- Patient Dropdown -->
+    <div class="col-md-4">
+      <label for="patient" class="form-label mb-1">Filter by Patient:</label>
+      <select name="patient" id="patient" class="form-select form-select-sm">
+        <option value="">-- Select Patient --</option>
+        {% for p in all_patients %}
+          <option value="{{ p.patient_id }}" {% if request.GET.patient == p.patient_id %}selected{% endif %}>{{ p.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- Filter Button -->
+    <div class="col-auto d-flex align-items-end">
+      <button type="submit" class="btn btn-primary btn-sm px-5 py-1">Filter</button>
+    </div>
+
+    <!-- View All Button -->
+    <div class="col-auto d-flex align-items-end">
+      <a href="{% url 'scheduled_doses' %}" class="btn btn-success btn-sm px-5 py-1">View All</a>
+    </div>
+
+  </form>
+
+  <!-- Dose Table -->
+  <table class="table table-striped mt-3">
+    <thead>
+      <tr>
+        <th>Patient</th>
+        <th>Medication</th>
+        <th>Scheduled Time</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for dose in doses %}
+        <tr>
+          <td>{{ dose.medication.patient.name }}</td>
+          <td>{{ dose.medication.med_type.med_name }}</td>
+          <td>{{ dose.scheduled_time|localtime|date:"d M Y, H:i" }}</td>          
+          <td>{{ dose.status }}</td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="4">No upcoming doses found.</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <!-- Pagination Controls -->
+  <div class="d-flex justify-content-between align-items-center mt-3">
+    <div>
+      Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+    </div>
+    <nav aria-label="Scheduled doses pagination">
+      <ul class="pagination mb-0">
+        {% if page_obj.has_previous %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}&{{ request.GET.urlencode }}" aria-label="Previous">&laquo; Prev</a>
+          </li>
+        {% endif %}
+        <li class="page-item disabled">
+          <span class="page-link">{{ page_obj.number }}</span>
+        </li>
+        {% if page_obj.has_next %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}&{{ request.GET.urlencode }}" aria-label="Next">Next &raquo;</a>
+          </li>
+        {% endif %}
+      </ul>
+    </nav>
+  </div>
+{% endblock %}

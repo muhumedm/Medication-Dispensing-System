@@ -1,0 +1,37 @@
+/* General body styling */
+body {
+    font-family: Arial, sans-serif;
+    font-size: 18px;
+    background-color: #f8f9fa;
+    color: #333;
+}
+
+/* Headings */
+h1, h2, h3 {
+    color: #00796b;
+    margin-bottom: 20px;
+}
+
+/* Table */
+table {
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+}
+
+/* Buttons */
+.btn {
+    font-size: 18px;
+    padding: 10px 20px;
+    border-radius: 8px;
+}
+
+/* Legend spans */
+span {
+    font-size: 16px;
+    margin-right: 10px;
+}

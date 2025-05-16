@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2 class="text-center mb-4"></h2>
+
+<div class="text-center">
+  <img src="data:image/png;base64,{{ chart }}" alt="My Medication Chart" class="img-fluid mt-3" style="max-width: 700px;">
+</div>
+
+<!-- Legend -->
+<div class="text-center mt-4">
+  <p class="fw-bold">Legend:</p>
+  <span style="display:inline-block; width:15px; height:15px; background:#4A90E2; border:1px solid #000;"></span> Missed &nbsp;
+  <span style="display:inline-block; width:15px; height:15px; background:#50E3C2; border:1px solid #000;"></span> Taken On Time &nbsp;
+  <span style="display:inline-block; width:15px; height:15px; background:#007AFF; border:1px solid #000;"></span> Taken Late &nbsp;
+  <span style="display:inline-block; width:15px; height:15px; background:#B2DFDB; border:1px solid #000;"></span> Scheduled
+</div>
+
+{% endblock %}

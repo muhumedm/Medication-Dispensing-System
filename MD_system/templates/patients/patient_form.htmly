@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block content %}
+
+  <h2>{% if object %}Edit{% else %}Add{% endif %} Patient</h2>
+
+  <form method="post">
+    {% csrf_token %}
+
+    <p class="form-group mb-3">
+      {{ form.patient_id.label_tag }} {{ form.patient_id }}
+    </p>
+
+    <p class="form-group mb-3">
+      {{ form.name.label_tag }} {{ form.name }}
+    </p>
+
+    <p class="form-group mb-3">
+      {{ form.date_of_birth.label_tag }} {{ form.date_of_birth }}
+    </p>
+
+    <p class="form-group mb-3">
+      {{ form.gender.label_tag }} {{ form.gender }}
+    </p>
+
+    <!-- Buttons with consistent size -->
+    <div class="mt-4">
+      <button type="submit" class="btn btn-success px-4">Save</button>
+      <a href="{% url 'patient_list' %}" class="btn btn-secondary px-4">Cancel</a>
+    </div>
+  </form>
+
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block content %}
+
+  <h2>{% if object %}Edit{% else %}Add{% endif %} Patient</h2>
+
+  <form method="post">
+    {% csrf_token %}
+
+    <p class="form-group mb-3">
+      {{ form.patient_id.label_tag }} {{ form.patient_id }}
+    </p>
+
+    <p class="form-group mb-3">
+      {{ form.name.label_tag }} {{ form.name }}
+    </p>
+
+    <p class="form-group mb-3">
+      {{ form.date_of_birth.label_tag }} {{ form.date_of_birth }}
+    </p>
+
+    <p class="form-group mb-3">
+      {{ form.gender.label_tag }} {{ form.gender }}
+    </p>
+
+    <!-- Buttons with consistent size -->
+    <div class="mt-4 d-flex gap-3 align-items-center">
+       <button type="submit" class="btn btn-success text-center" style="width: 140px; height: 45px;">Save</button>
+       <a href="{% url 'patient_list' %}" class="btn btn-secondary text-center d-flex align-items-center justify-content-center" style="width: 140px; height: 45px;">Cancel</a>
+    </div>
+
+
+{% if form.errors %}
+  <div class="alert alert-danger">
+    <ul>
+      {% for field in form %}
+        {% for error in field.errors %}
+          <li>{{ field.label }}: {{ error }}</li>
+        {% endfor %}
+      {% endfor %}
+      {% for error in form.non_field_errors %}
+        <li>{{ error }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endif %}
+
+
+
+  </form>
+
+{% endblock %}

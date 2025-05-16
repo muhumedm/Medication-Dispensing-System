@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>{% if object %}Edit{% else %}Add{% endif %} Medication</h2>
+
+  <form method="post">
+    {% csrf_token %}
+
+    <!-- Patient Dropdown -->
+    <p class="form-group mb-3">
+      {{ form.patient.label_tag }} {{ form.patient }}
+    </p>
+
+    <!-- Health Condition -->
+    <p class="form-group mb-3">
+      {{ form.health_condition.label_tag }} {{ form.health_condition }}
+    </p>
+
+    <!-- Med Type -->
+    <p class="form-group mb-3">
+      {{ form.med_type.label_tag }} {{ form.med_type }}
+    </p>
+
+    <!-- Dosage Time -->
+    <p class="form-group mb-3">
+      {{ form.dosage_time.label_tag }} {{ form.dosage_time }}
+    </p>
+
+    <!-- Status -->
+    <p class="form-group mb-3">
+      {{ form.status.label_tag }} {{ form.status }}
+    </p>
+
+    <!-- Start Date -->
+    <p class="form-group mb-3">
+      {{ form.medication_start_date.label_tag }} {{ form.medication_start_date }}
+    </p>
+
+    <!-- End Date -->
+    <p class="form-group mb-3">
+      {{ form.medication_end_date.label_tag }} {{ form.medication_end_date }}
+    </p>
+
+    <!-- Notification Checkbox -->
+    <p class="form-group mb-4">
+      {{ form.notification_sent.label_tag }} {{ form.notification_sent }}
+    </p>
+
+    <!-- Buttons with consistent size -->
+    <div class="mt-4 d-flex gap-3 align-items-center">
+      <button type="submit" class="btn btn-success text-center" style="width: 140px; height: 45px;">Save</button>
+      <a href="{% url 'medication_list' %}" class="btn btn-secondary text-center d-flex align-items-center justify-content-center" style="width: 140px; height: 45px;">Cancel</a>
+    </div>
+  </form>
+{% endblock %}

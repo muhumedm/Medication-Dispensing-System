@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Patient Dashboard</h2>
+<p>Welcome, {{ username }}!</p>
+
+<h4>Your Medications</h4>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Medication</th>
+      <th>Health Condition</th>
+      <th>Dosage Time</th>
+      <th>Status</th>
+      <th>Course Type</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for med in medications %}
+    <tr>
+      <td>{{ med.med_type.med_name }}</td>
+      <td>{{ med.health_condition }}</td>
+      <td>{{ med.dosage_time }}</td>
+      <td>{{ med.status }}</td>
+      <td>{{ med.course_type }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
+

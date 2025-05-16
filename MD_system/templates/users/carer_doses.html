@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>All Patient Dose History</h2>
+<p>Logged in as: {{ username }} (Carer)</p>
+
+<form method="get">
+  <div class="row mb-4 d-flex align-items-end justify-content-center">
+
+    <!-- Filter by Patient -->
+    <div class="col-md-3">
+      <label for="patient">Filter by Patient:</label>
+      <select name="patient" class="form-select">
+        <option value="">All Patients</option>
+        {% for p in all_patients %}
+          <option value="{{ p.patient_id }}" {% if request.GET.patient == p.patient_id %}selected{% endif %}>
+            {{ p.name }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- Filter by Medication -->
+    <div class="col-md-3">
+      <label for="medication">Filter by Medication:</label>
+      <select name="medication" class="form-select">
+        <option value="">All Medications</option>
+        {% for m in all_meds %}
+          <option value="{{ m.med_type_id }}" {% if request.GET.medication == m.med_type_id|stringformat:"s" %}selected{% endif %}>
+            {{ m.med_name }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- Filter by Status -->
+    <div class="col-md-3">
+      <label for="status">Filter by Status:</label>
+      <select name="status" class="form-select">
+        <option value="">All Status</option>
+        <option value="Taken On Time" {% if request.GET.status == "Taken On Time" %}selected{% endif %}>Taken On Time</option>
+        <option value="Taken Late" {% if request.GET.status == "Taken Late" %}selected{% endif %}>Taken Late</option>
+        <option value="Missed" {% if request.GET.status == "Missed" %}selected{% endif %}>Missed</option>
+      </select>
+    </div>
+
+    <!-- Buttons -->
+    <div class="col-md-3 d-flex align-items-center justify-content-start gap-2 mt-4">
+      <button type="submit" class="btn btn-primary text-center" style="width: 140px; height: 45px;">Filter</button>
+      <a href="{% url 'carer_doses' %}" class="btn btn-success text-center d-flex align-items-center justify-content-center" style="width: 140px; height: 45px;">View All</a>
+    </div>
+
+  </div>
+</form>
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Patient</th>
+      <th>Medication</th>
+      <th>Scheduled Time</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for dose in doses %}
+    <tr>
+      <td>{{ dose.medication.patient.name }}</td>
+      <td>{{ dose.medication.med_type.med_name }}</td>
+      <td>{{ dose.scheduled_time }}</td>
+      <td>
+        <span class="
+          {% if dose.status == 'Missed' %}text-danger
+          {% elif dose.status == 'Taken On Time' %}text-success
+          {% elif dose.status == 'Taken Late' %}text-warning
+          {% else %}text-secondary{% endif %}
+        ">
+          {{ dose.status }}
+        </span>
+      </td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="4">No dose history found.</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<div class="d-flex justify-content-between align-items-center mt-3">
+  <div>
+    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+  </div>
+  <nav aria-label="Dose pagination">
+    <ul class="pagination">
+      {% if page_obj.has_previous %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ page_obj.previous_page_number }}&{{ request.GET.urlencode }}" aria-label="Previous">
+            &laquo; Prev
+          </a>
+        </li>
+      {% endif %}
+      <li class="page-item disabled">
+        <span class="page-link">{{ page_obj.number }}</span>
+      </li>
+      {% if page_obj.has_next %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ page_obj.next_page_number }}&{{ request.GET.urlencode }}" aria-label="Next">
+            Next &raquo;
+          </a>
+        </li>
+      {% endif %}
+    </ul>
+  </nav>
+</div>
+
+{% endblock %}

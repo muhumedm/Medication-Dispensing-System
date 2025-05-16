@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% load tz %}
+
+{% block content %}
+<h2>Patient Dose History</h2>
+<p>Welcome, {{ username }}!</p>
+
+<form method="get" class="row g-2 mb-3">
+  <div class="col-md-4">
+    <select name="status" class="form-select">
+      <option value="">Filter by Status</option>
+      <option value="Taken On Time" {% if request.GET.status == 'Taken On Time' %}selected{% endif %}>Taken On Time</option>
+      <option value="Taken Late" {% if request.GET.status == 'Taken Late' %}selected{% endif %}>Taken Late</option>
+      <option value="Missed" {% if request.GET.status == 'Missed' %}selected{% endif %}>Missed</option>
+    </select>
+  </div>
+
+  <div class="col-md-4">
+    <select name="medication" class="form-select">
+      <option value="">Filter by Medication</option>
+      {% for med in medications %}
+        <option value="{{ med.medication_id }}" {% if request.GET.medication == med.medication_id|stringformat:"s" %}selected{% endif %}>
+          {{ med.med_type.med_name }}
+        </option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="col-md-2">
+    <button type="submit" class="btn btn-primary w-100">Filter</button>
+  </div>
+</form>
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Medication</th>
+      <th>Scheduled Time</th>
+      <th>Status</th>
+      <th>Confirmed At</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for dose in doses %}
+    <tr>
+      <td>{{ dose.medication.med_type.med_name }}</td>
+      <td>{{ dose.scheduled_time|localtime|date:"d M Y, H:i" }}</td>
+
+      <td>
+        <span class="{% if dose.status == 'Missed' %}text-danger
+                      {% elif dose.status == 'Taken On Time' %}text-success
+                      {% elif dose.status == 'Taken Late' %}text-warning
+                      {% else %}text-muted{% endif %}">
+          {{ dose.status }}
+        </span>
+      </td>
+
+      <td>
+        {% if dose.actual_time_taken %}
+          {{ dose.actual_time_taken|localtime|date:"Y-m-d H:i" }}
+        {% elif dose.status == "Taken On Time" or dose.status == "Taken Late" %}
+          {{ dose.scheduled_time|localtime|date:"Y-m-d H:i" }}
+        {% else %}
+          <em>--</em>
+        {% endif %}
+      </td>
+
+      <td>
+        {% if dose.status == "Taken On Time" or dose.status == "Taken Late" %}
+          <span class="text-success">Confirmed</span>
+        {% elif dose.status == "Missed" and dose.allow_confirm %}
+          <form method="post" action="{% url 'confirm_dose' dose.dose_id %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm btn-success">Confirm</button>
+          </form>
+        {% elif dose.status == "Missed" %}
+          <span class="text-danger">Missed</span>
+        {% else %}
+          <form method="post" action="{% url 'confirm_dose' dose.dose_id %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm btn-success">Confirm</button>
+          </form>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<div class="d-flex justify-content-between align-items-center mt-3">
+  <div>
+    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+  </div>
+  <nav aria-label="Dose pagination">
+    <ul class="pagination">
+      {% if page_obj.has_previous %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ page_obj.previous_page_number }}&{{ request.GET.urlencode }}">« Prev</a>
+        </li>
+      {% endif %} 
+          
+      <li class="page-item disabled">
+        <span class="page-link">{{ page_obj.number }}</span>
+      </li>
+        
+      {% if page_obj.has_next %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ page_obj.next_page_number }}&{{ request.GET.urlencode }}">Next »</a>
+        </li>
+      {% endif %} 
+    </ul>
+  </nav>
+</div>
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2>All Medications</h2>
+
+{% if request.session.role == 'Carer' %}
+  <div class="d-flex justify-content-center gap-3 mb-4">
+    <a href="{% url 'dose_chart' %}" class="btn btn-info text-white"
+       style="width: 160px; height: 45px; display: flex; align-items: center; justify-content: center;">
+      Dose Chart
+    </a>
+    <a href="{% url 'medication_create' %}" class="btn btn-primary"
+       style="width: 160px; height: 45px; display: flex; align-items: center; justify-content: center;">
+      Add Medication
+    </a>
+  </div>
+{% endif %}
+
+<table class="table table-bordered">
+  <thead>
+    <tr>
+      <th>Patient</th>
+      <th>Medication</th>
+      <th>Health Condition</th>
+      <th>Dosage Time</th>
+      <th>Course Type</th>
+      {% if request.session.role == 'Carer' %}
+        <th>Actions</th>
+      {% endif %}
+    </tr>
+  </thead>
+  <tbody>
+    {% for med in medications %}
+    <tr>
+      <td>{{ med.patient.name }}</td>
+      <td>{{ med.med_type.med_name }}</td>
+      <td>{{ med.health_condition }}</td>
+      <td>{{ med.dosage_time }}</td>
+      <td>{{ med.course_type }}</td>
+      {% if request.session.role == 'Carer' %}
+      <td>
+        <a href="{% url 'medication_update' med.pk %}" class="btn btn-sm btn-success">Edit</a>
+        <a href="{% url 'medication_delete' med.pk %}" class="btn btn-sm btn-danger">Delete</a>
+      </td>
+      {% endif %}
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}

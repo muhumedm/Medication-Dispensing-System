@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<h2>Login</h2>
+
+{% if messages %}
+  {% for message in messages %}
+    {% if 'logged out' in message|lower %}
+      <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endif %}
+  {% endfor %}
+{% endif %}
+
+<!-- Custom Login Form -->
+<div class="container mt-5 text-center">
+    <!-- Short message explaining the system's function -->
+    <p>Designed to help users take their medication on time and ensure adherence through timely reminders.</p>
+
+    <!-- Banner Image Section -->
+    <img src="{% static 'images/IMG_0616.JPG' %}" class="login-image" alt="Elderly Patient with Medication">
+
+    <!-- Login Prompt -->
+    <div class="container mt-4 text-center">
+        <p class="fw-bold">Please enter your username.</p>
+        <p>If you’re unsure, please contact the administrator for assistance.</p>    
+    </div>
+
+    <!-- Login Form -->
+    <form method="POST" action="{% url 'login' %}" class="mt-4">
+        {% csrf_token %}
+        <!-- Username Field -->
+        <div class="mb-3">
+            <input type="text" class="form-control" name="username" placeholder="Username" required>
+        </div>
+
+        <!-- Password Field -->
+        <div class="mb-3">
+            <input type="password" class="form-control" name="password" placeholder="Password" required>
+        </div>
+
+        <!-- Login Button -->
+        <div class="mb-3">
+            <button type="submit" class="btn btn-success w-100">Login</button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

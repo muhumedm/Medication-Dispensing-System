@@ -1,0 +1,102 @@
+/* General body styling */
+body {
+    font-family: Arial, sans-serif;
+    font-size: 18px;
+    background-color: #f8f9fa;
+    color: #333;
+}
+
+/* Headings */
+h1, h2, h3 {
+    color: #00796b;
+    margin-bottom: 20px; 
+}
+
+/* Table */
+table {
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+}
+
+/* Buttons */
+.btn {
+    font-size: 18px;
+    padding: 10px 20px;
+    border-radius: 8px;
+}
+
+/* Legend spans */
+span {
+    font-size: 16px;
+    margin-right: 10px;
+}
+
+/* Input styling */
+input, select, textarea {
+    width: 100%;
+    max-width: 400px;
+    margin-bottom: 15px;
+    padding: 8px;  
+}
+
+select {
+    width: 100%;
+    max-width: 400px;
+}
+
+textarea {
+    width: 100%;
+    max-width: 400px;
+}
+
+/* Custom Image Login Page */
+.login-image {
+    max-width: 35% !important;
+    height: auto !important;
+    margin-bottom: 10px !important;  /* Reduced bottom margin to pull the image closer to the form */
+}
+
+/* Adjust the space between the login prompt and the form */
+.container.mt-4.text-center p {
+    margin-bottom: 5px;  /* Reduce space below the "Please enter your username to log in." text */
+}
+
+/* Ensure the form doesn't have extra padding or margins */
+form {
+    margin-top: 0;   
+    padding-top: 0;
+}
+
+/* Reduce space above the entire container */
+.container.mt-4.text-center {
+    margin-top: 0;
+}
+
+/* Custom Login Page Styling */
+.container.mt-5.text-center {
+    display: flex;
+    justify-content: center;  /* Center horizontally */
+    align-items: center;      /* Center vertically */
+    height: 80vh;             /* Ensure the container takes full height without overflow */
+    flex-direction: column;   /* Stack the elements vertically */
+}
+
+/* Center the login title */
+h2 {
+    text-align: center;
+    margin-top: 20px;
+    color: #00796b;
+}
+
+/* Adjust spacing between username and password */
+input, button {
+    padding: 10px 15px;
+    margin: 10px 0;
+    width: 100%;
+    max-width: 400px;
+}

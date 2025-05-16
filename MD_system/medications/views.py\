@@ -1,0 +1,280 @@
+# standard libraries
+import json
+import io
+import base64
+from datetime import date, datetime, timezone, timedelta
+
+# matplotlib setup (non-GUI mode)
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+
+# django modules
+from django.shortcuts import render, redirect
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.urls import reverse_lazy
+from django.utils.timezone import now
+from django.contrib import messages
+from django.http import HttpResponseRedirect, JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.db import models
+
+# project imports
+from .models import Medication
+from .forms import MedicationForm 
+from medications.models import MedicationDose
+from medications.notifications.email_alerts import send_email_alert
+
+class MedicationListView(ListView):
+    model = Medication
+    template_name = 'medications/medication_list.html'
+    context_object_name = 'medications'
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.session.get('username'):
+            return redirect('login')
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        if self.request.session['role'] == 'Carer':
+            return Medication.objects.all()
+        return Medication.objects.filter(patient_id=self.request.session['patient_id'])
+
+
+class MedicationDetailView(DetailView):
+    model = Medication
+    template_name = 'medications/medication_detail.html'
+    context_object_name = 'medication'
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.session.get('username'):
+            return redirect('login')
+        return super().dispatch(request, *args, **kwargs)
+
+class MedicationCreateView(CreateView):
+    model = Medication
+    form_class = MedicationForm
+    template_name = 'medications/medication_form.html'
+    success_url = reverse_lazy('medication_list')
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.session.get('username') or request.session.get('role') != 'Carer':
+            return redirect('login')
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['today'] = date.today()
+        return context
+
+
+class MedicationUpdateView(UpdateView):
+    model = Medication
+    form_class = MedicationForm
+    template_name = 'medications/medication_form.html'
+    success_url = reverse_lazy('medication_list')
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.session.get('username') or request.session.get('role') != 'Carer':
+            return redirect('login')
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['today'] = date.today()
+        return context
+
+class MedicationDeleteView(DeleteView):
+    model = Medication
+    template_name = 'medications/medication_confirm_delete.html'
+    success_url = reverse_lazy('medication_list')
+
+    def dispatch(self, request, *args, **kwargs):
+      if not request.session.get('username') or request.session.get('role') != 'Carer':
+        return redirect('login')
+      return super().dispatch(request, *args, **kwargs)
+
+class MissedMedicationListView(ListView):
+    model = MedicationDose
+    template_name = 'medications/missed_medications.html'
+    context_object_name = 'doses'
+    paginate_by = 15
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.session.get('username'):
+            return redirect('login')
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        current_time = now()
+        past_30_days = current_time - timedelta(days=30)
+
+        MedicationDose.objects.filter(
+            scheduled_time__lt=current_time,
+            status__in=[None, 'Scheduled', '']
+        ).update(status='Missed')
+
+        queryset = MedicationDose.objects.select_related(
+            'medication__patient',
+            'medication__med_type'
+        ).filter(
+            status='Missed',
+            scheduled_time__range=(past_30_days, current_time)
+        )
+
+        patient_id = self.request.GET.get('patient')
+        if patient_id:
+            queryset = queryset.filter(medication__patient__patient_id=patient_id)
+
+        medication_id = self.request.GET.get('medication')
+        if medication_id:
+            queryset = queryset.filter(medication__med_type__med_type_id=medication_id)
+
+        # Restrict access for patients
+        if self.request.session.get('role') == 'Patient':
+            pid = self.request.session.get('patient_id')
+            queryset = queryset.filter(medication__patient__patient_id=pid)
+
+        return queryset.order_by('-scheduled_time')
+
+    def get_context_data(self, **kwargs):   
+        context = super().get_context_data(**kwargs)
+        
+        # Add dropdowns for carers only
+        if self.request.session.get('role') == 'Carer':  
+            from patients.models import Patient
+            from medtypes.models import MedicationType
+            context['all_patients'] = Patient.objects.all()
+            context['all_meds'] = MedicationType.objects.all()
+            
+        return context
+
+class PatientMedicationListView(ListView):
+    model = Medication
+    template_name = 'medications/patient_medications.html'
+    context_object_name = 'medications'
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.session.get('username'):
+            return redirect('login')
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return Medication.objects.filter(patient_id=self.request.session['patient_id'])
+
+def confirm_dose(request, dose_id):
+    if not request.session.get('username'):
+        return redirect('login')
+        
+    try:
+        dose = MedicationDose.objects.get(pk=dose_id)
+        current_time = now()
+        delay = (current_time - dose.scheduled_time).total_seconds()
+        
+        if delay < -300:
+            messages.error(request, "You're confirming too early. Please try again within 5 minutes.")
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+        
+        if delay <= 600:  # 10 minutes = 600 seconds
+            dose.status = 'Taken On Time'
+        else:
+            dose.status = 'Taken Late'
+            
+        dose.actual_time_taken = current_time
+        dose.save()   
+    
+        # Trigger carer email notification
+        send_email_alert(dose)
+    
+        messages.success(request, f"Dose marked as '{dose.status}'.")
+    except MedicationDose.DoesNotExist:
+        messages.error(request, "Dose not found.")
+    
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
+def dose_chart(request):
+    doses = MedicationDose.objects.all()   
+    status_counts = doses.values('status').annotate(count=models.Count('dose_id'))
+        
+    statuses = [item['status'] for item in status_counts]
+    counts = [item['count'] for item in status_counts]
+        
+    # Assign blue shades
+    colour_map = {
+        'Missed': '#4A90E2',        # medium blue
+        'Taken On Time': '#50E3C2', # aqua blue
+        'Taken Late': '#007AFF',    # vivid blue
+        'Scheduled': '#B2DFDB'      # light blue (matches navbar)
+    }
+    
+    colours = [colour_map.get(status, '#A0C4FF') for status in statuses]  # fallback light blue
+    
+    plt.figure(figsize=(10, 6))
+    plt.bar(statuses, counts, color=colours, edgecolor='black')
+    plt.title('Medication Dose Statuses', fontsize=20)
+    plt.xlabel('Status', fontsize=16)
+    plt.ylabel('Count', fontsize=16)
+    plt.xticks(fontsize=14)
+    plt.yticks(fontsize=14)
+    plt.tight_layout()
+            
+    buffer = io.BytesIO()
+    plt.savefig(buffer, format='png')
+    buffer.seek(0)
+    image_png = buffer.getvalue()
+    buffer.close()
+        
+    graphic = base64.b64encode(image_png)
+    graphic = graphic.decode('utf-8')
+        
+    return render(request, 'medications/dose_chart.html', {'graphic': graphic})
+
+@csrf_exempt
+def api_due_doses(request):
+    """Returns doses for today that are not 'On Time'."""
+    if request.method == 'GET':
+        today = now().date()
+        doses = MedicationDose.objects.filter(
+            scheduled_time__date=today
+        ).exclude(status='On Time')
+
+        data = [{
+            'id': dose.pk,
+            'medication_name': dose.medication.med_type.med_name,
+            'scheduled_time': dose.scheduled_time.isoformat(),
+            'patient_id': dose.medication.patient.patient_id,
+            'patient_name': dose.medication.patient.name,
+        } for dose in doses]
+
+        return JsonResponse(data, safe=False)
+
+
+@csrf_exempt
+def api_confirm_dose(request):
+    """Updates a dose to 'Taken On Time' or 'Taken Late', and sends an email."""
+    if request.method == 'POST':
+        try:
+            body = json.loads(request.body)
+            dose_id = body.get('dose_id')
+
+            dose = MedicationDose.objects.get(dose_id=dose_id)
+            now_time = now()
+            delay = (now_time - dose.scheduled_time).total_seconds()
+
+            if delay < 0:
+                return JsonResponse({'success': False, 'error': 'Too early to confirm this dose.'}, status=400)
+            elif delay <= 600:
+                dose.status = "Taken On Time"
+            else:
+                dose.status = "Taken Late"
+
+            dose.actual_time_taken = now_time
+            dose.save()
+
+            send_email_alert(dose)
+
+            return JsonResponse({'success': True, 'message': f'Dose {dose_id} confirmed as {dose.status}.'})
+
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
