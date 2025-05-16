@@ -24,3 +24,6 @@
 .zshrc
 .gitconfig
 
+MD_system/generate_fake_doses_for_all.py
+MD_system/fix_invalid_times.py
+MD_system/check_upcoming_doses.py
